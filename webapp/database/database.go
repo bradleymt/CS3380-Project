@@ -31,6 +31,9 @@ func migrateTables() error {
 		&Library{},
 		&LibraryItem{},
 		&Wishlist{},
+		&WishlistItem{},
+		&Cart{},
+		&CartItem{},
 	)
 
 	return err
