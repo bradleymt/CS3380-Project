@@ -13,6 +13,8 @@ services:
       args:
         - GOLANG_VERSION=${GOLANG_VERSION}
     env_file: .env
+    ports:
+      - 8081:8080
     volumes:
       - ./webapp:/opt/webapp
       - ./webapp/gomodcache:/go/pkg/mod

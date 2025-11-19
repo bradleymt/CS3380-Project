@@ -17,9 +17,9 @@ type Family struct {
 
 type User struct {
 	gorm.Model
-	Username string `gorm:"unique;not null"`
-	Email    string `gorm:"unique;not null"`
-	Password string `gorm:"not null"`
+	Username string `gorm:"unique;not null" json:"username" binding:"required"`
+	Email    string `gorm:"unique;not null" json:"email" binding:"required,email"`
+	Password string `gorm:"not null" json:"password" binding:"required,min=8"`
 
 	FamilyID *uint
 	Family   *Family `gorm:"foreignKey:FamilyID"`

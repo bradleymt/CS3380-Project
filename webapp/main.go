@@ -2,6 +2,8 @@ package main
 
 import (
 	"cs3380/database"
+	"cs3380/middleware"
+	"cs3380/routes"
 	"fmt"
 	"log"
 	"net/http"
@@ -21,12 +23,22 @@ func main() {
 
 	r := gin.Default()
 
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "pong",
-		})
-	})
+	apiGroup := r.Group("/api")
+	{
+		apiGroup.POST("/register", routes.RegisterUser)
+		apiGroup.GET("/login", routes.LoginUser)
 
+		secureGroup := apiGroup.Group("/secure")
+		{
+			// Middleware for authentication
+			secureGroup.Use(middleware.AuthorizeRequest)
+			secureGroup.GET("/ping", func(c *gin.Context) {
+				c.JSON(http.StatusOK, gin.H{
+					"message": "pong",
+				})
+			})
+		}
+	}
 	if err := r.Run(); err != nil {
 		log.Fatalf("Failed to start server: %s", err.Error())
 	}
