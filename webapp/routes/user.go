@@ -2,6 +2,7 @@ package routes
 
 import (
 	"cs3380/database"
+	"cs3380/middleware"
 	"net/http"
 	"time"
 
@@ -63,11 +64,10 @@ func LoginUser(c *gin.Context) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id": user.ID,
-		"start":   jwt.NewNumericDate(time.Now().UTC()),
 		"exp":     jwt.NewNumericDate(time.Now().UTC().Add(time.Hour)),
 	})
 
-	tokenString, err := token.SignedString([]byte("abcdedgfghijklmnopqrstuvwxyz1234567890"))
+	tokenString, err := token.SignedString(middleware.SecretKey)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
 		return
