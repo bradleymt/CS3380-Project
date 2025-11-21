@@ -1,4 +1,3 @@
-// Wait for DOM to load
 document.addEventListener('DOMContentLoaded', function() {
     
     // Library filter functionality
@@ -10,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Add active class to clicked button
             this.classList.add('active');
             
-            // Here you would filter the library items based on the selected filter
+            // Add filter the library items based on the selected filter
             console.log('Filter selected:', this.textContent);
         });
     });
@@ -24,7 +23,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Add active class to clicked button
             this.classList.add('active');
             
-            // Here you would filter the store games based on the selected category
+            // Add filter the store games based on the selected category
             console.log('Category selected:', this.textContent);
         });
     });
@@ -77,7 +76,7 @@ document.addEventListener('DOMContentLoaded', function() {
         card.addEventListener('click', function() {
             const gameTitle = this.querySelector('.game-title').textContent;
             console.log('Game clicked:', gameTitle);
-            // Here you could open a detailed game page or modal
+            // Add ability to open detailed game page or modal
         });
     });
 
@@ -89,7 +88,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!e.target.closest('.btn')) {
                 const gameTitle = this.querySelector('.library-title').textContent;
                 console.log('Library game clicked:', gameTitle);
-                // Here you could open game details
+                // Add ability to open game details
             }
         });
     });
