@@ -1,55 +1,48 @@
 package main
 
 import (
+	"cs3380/database"
+	"cs3380/middleware"
+	"cs3380/routes"
 	"fmt"
-	"os"
+	"log"
 
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
+	"github.com/gin-gonic/gin"
 )
-
-var (
-	DB *gorm.DB
-)
-
-func GetEnv(key, defaultValue string) string {
-	if value, exists := os.LookupEnv(key); exists {
-		return value
-	}
-	return defaultValue
-}
-
-func ConnectDatabase() error {
-
-	// Retrieve environment variables with defaults
-	user := GetEnv("POSTGRES_USER", "user")
-	password := GetEnv("POSTGRES_PASSWORD", "password")
-	dbName := GetEnv("POSTGRES_DB", "db")
-	dbHost := GetEnv("POSTGRES_HOST", "postgres")
-	dbPort := GetEnv("POSTGRES_PORT", "5432")
-
-	// Build the connection string
-	connectionString := fmt.Sprintf(
-		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-		dbHost, dbPort, user, password, dbName,
-	)
-
-	db, err := gorm.Open(postgres.Open(connectionString), &gorm.Config{})
-	if err != nil {
-		return err
-	}
-
-	DB = db
-	return nil
-}
 
 func main() {
 	fmt.Println("Hello, World!")
 
-	if err := ConnectDatabase(); err != nil {
+	if err := database.ConnectDatabase(); err != nil {
 		fmt.Println("Failed to connect to database:", err)
 		return
 	}
 
 	fmt.Println("Connected to database successfully!")
+
+	r := gin.Default()
+	gin.SetMode(gin.DebugMode)
+
+	apiGroup := r.Group("/api")
+	{
+		apiGroup.POST("/register", routes.RegisterUser)
+		apiGroup.GET("/login", routes.LoginUser)
+
+		secureGroup := apiGroup.Group("/secure")
+		{
+			// Middleware for authentication
+			secureGroup.Use(middleware.AuthorizeRequest)
+			secureGroup.POST("/create-family", routes.CreateFamily)
+			secureGroup.POST("/join-family", routes.JoinFamily)
+			secureGroup.POST("/leave-family", routes.LeaveFamily)
+			secureGroup.GET("/get-family", routes.GetFamily)
+
+			secureGroup.POST("/create-publisher", routes.CreatePublisher)
+			secureGroup.POST("/join-publisher", routes.JoinPublisher)
+			secureGroup.POST("/leave-publisher", routes.LeavePublisher)
+		}
+	}
+	if err := r.Run(); err != nil {
+		log.Fatalf("Failed to start server: %s", err.Error())
+	}
 }

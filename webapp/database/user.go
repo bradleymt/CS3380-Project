@@ -1,0 +1,34 @@
+package database
+
+import (
+	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
+)
+
+type Publisher struct {
+	gorm.Model
+	StudioName string `gorm:"unique;not null" json:"studio_name" binding:"required,min=8,max=32"`
+	Country    string `gorm:"not null" json:"country" binding:"required,min=2,max=2"`
+}
+
+type Family struct {
+	gorm.Model
+}
+
+type User struct {
+	gorm.Model
+	Username string `gorm:"unique;not null" json:"username" binding:"required"`
+	Email    string `gorm:"unique;not null" json:"email" binding:"required,email"`
+	Password string `gorm:"not null" json:"password" binding:"required,min=8"`
+
+	FamilyID *uint
+	Family   *Family `gorm:"foreignKey:FamilyID"`
+
+	PublisherID *uint
+	Publisher   *Publisher `gorm:"foreignKey:PublisherID"`
+}
+
+func (u *User) CheckHash(password string) error {
+	bcryptHash := []byte(u.Password)
+	return bcrypt.CompareHashAndPassword(bcryptHash, []byte(password))
+}
