@@ -6,7 +6,6 @@ import (
 	"cs3380/routes"
 	"fmt"
 	"log"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -22,6 +21,7 @@ func main() {
 	fmt.Println("Connected to database successfully!")
 
 	r := gin.Default()
+	gin.SetMode(gin.DebugMode)
 
 	apiGroup := r.Group("/api")
 	{
@@ -32,11 +32,10 @@ func main() {
 		{
 			// Middleware for authentication
 			secureGroup.Use(middleware.AuthorizeRequest)
-			secureGroup.GET("/ping", func(c *gin.Context) {
-				c.JSON(http.StatusOK, gin.H{
-					"message": "pong",
-				})
-			})
+			secureGroup.POST("/create-family", routes.CreateFamily)
+			secureGroup.POST("/join-family", routes.JoinFamily)
+			secureGroup.POST("/leave-family", routes.LeaveFamily)
+			secureGroup.GET("/get-family", routes.GetFamily)
 		}
 	}
 	if err := r.Run(); err != nil {
