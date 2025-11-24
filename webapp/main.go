@@ -36,6 +36,10 @@ func main() {
 			secureGroup.POST("/join-family", routes.JoinFamily)
 			secureGroup.POST("/leave-family", routes.LeaveFamily)
 			secureGroup.GET("/get-family", routes.GetFamily)
+
+			secureGroup.POST("/create-publisher", routes.CreatePublisher)
+			secureGroup.POST("/join-publisher", routes.JoinPublisher)
+			secureGroup.POST("/leave-publisher", routes.LeavePublisher)
 		}
 	}
 	if err := r.Run(); err != nil {
