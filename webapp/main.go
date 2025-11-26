@@ -40,6 +40,10 @@ func main() {
 			secureGroup.POST("/create-publisher", routes.CreatePublisher)
 			secureGroup.POST("/join-publisher", routes.JoinPublisher)
 			secureGroup.POST("/leave-publisher", routes.LeavePublisher)
+
+			secureGroup.POST("/create-game", routes.CreateGame)
+			secureGroup.POST("/remove-game", routes.RemoveGame)
+			secureGroup.GET("/find-games", routes.FindGames)
 		}
 	}
 	if err := r.Run(); err != nil {

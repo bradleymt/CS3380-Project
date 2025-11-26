@@ -4,12 +4,12 @@ import "gorm.io/gorm"
 
 type Game struct {
 	gorm.Model
-	Name        string
+	Name        string `json:"name"`
 	PublisherID uint
-	Publisher   Publisher `gorm:"foreignKey:PublisherID"`
-	Price       float64
-	Currency    string
-	Genre       string
+	Publisher   Publisher `gorm:"foreignKey:PublisherID" json:"-"`
+	Price       float64   `json:"price"`
+	Currency    string    `json:"currency"`
+	Genre       string    `json:"genre"`
 }
 
 type Discount struct {
