@@ -31,11 +31,8 @@ func migrateTables() error {
 		&Discount{},
 		&Purchase{},
 		&Refund{},
-		&Library{},
 		&LibraryItem{},
-		&Wishlist{},
 		&WishlistItem{},
-		&Cart{},
 		&CartItem{},
 	)
 

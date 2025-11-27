@@ -1,0 +1,7 @@
+#!/bin/bash
+curl -X POST -i http://localhost:8081/api/secure/add-to-wishlist \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <TOKEN>" \
+  -d '{
+    "game_id": 1
+  }'

@@ -37,9 +37,24 @@ func main() {
 			secureGroup.POST("/leave-family", routes.LeaveFamily)
 			secureGroup.GET("/get-family", routes.GetFamily)
 
+			secureGroup.POST("/add-to-cart", routes.AddToCart)
+			secureGroup.POST("/remove-from-cart", routes.RemoveFromCart)
+			secureGroup.GET("/get-cart", routes.GetCartItems)
+
+			secureGroup.POST("/purchase", routes.PurchaseItems)
+			secureGroup.POST("/request-refund", routes.RequestRefund)
+			secureGroup.POST("/approve-refund", routes.ApproveRefund)
+
+			secureGroup.POST("/add-to-wishlist", routes.AddToWishlist)
+			secureGroup.POST("/remove-from-wishlist", routes.RemoveFromWishlist)
+
 			secureGroup.POST("/create-publisher", routes.CreatePublisher)
 			secureGroup.POST("/join-publisher", routes.JoinPublisher)
 			secureGroup.POST("/leave-publisher", routes.LeavePublisher)
+
+			secureGroup.POST("/create-game", routes.CreateGame)
+			secureGroup.POST("/remove-game", routes.RemoveGame)
+			secureGroup.GET("/find-games", routes.FindGames)
 		}
 	}
 	if err := r.Run(); err != nil {

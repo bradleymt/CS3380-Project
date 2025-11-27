@@ -4,12 +4,12 @@ import "gorm.io/gorm"
 
 type Game struct {
 	gorm.Model
-	Name        string
+	Name        string `json:"name"`
 	PublisherID uint
-	Publisher   Publisher `gorm:"foreignKey:PublisherID"`
-	Price       float64
-	Currency    string
-	Genre       string
+	Publisher   Publisher `gorm:"foreignKey:PublisherID" json:"-"`
+	Price       float64   `json:"price"`
+	Currency    string    `json:"currency"`
+	Genre       string    `json:"genre"`
 }
 
 type Discount struct {
@@ -41,44 +41,26 @@ type Refund struct {
 	Approved   bool
 }
 
-type Library struct {
-	gorm.Model
-	UserID uint
-	User   User `gorm:"foreignKey:UserID"`
-}
-
 type LibraryItem struct {
 	gorm.Model
-	LibraryID uint
-	Library   Library `gorm:"foreignKey:LibraryID"`
-	GameID    uint
-	Game      Game `gorm:"foreignKey:GameID"`
-}
-
-type Wishlist struct {
-	gorm.Model
 	UserID uint
 	User   User `gorm:"foreignKey:UserID"`
+	GameID uint
+	Game   Game `gorm:"foreignKey:GameID"`
 }
 
 type WishlistItem struct {
 	gorm.Model
-	WishlistID uint
-	Wishlist   Wishlist `gorm:"foreignKey:WishlistID"`
-	GameID     uint
-	Game       Game `gorm:"foreignKey:GameID"`
-}
-
-type Cart struct {
-	gorm.Model
 	UserID uint
 	User   User `gorm:"foreignKey:UserID"`
+	GameID uint
+	Game   Game `gorm:"foreignKey:GameID"`
 }
 
 type CartItem struct {
 	gorm.Model
-	CartID uint
-	Cart   Cart `gorm:"foreignKey:CartID"`
+	UserID uint
+	User   User `gorm:"foreignKey:UserID"`
 	GameID uint
 	Game   Game `gorm:"foreignKey:GameID"`
 }

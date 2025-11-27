@@ -7,8 +7,8 @@ import (
 
 type Publisher struct {
 	gorm.Model
-	StudioName string `gorm:"unique;not null" json:"studio_name" binding:"required,min=8,max=32"`
-	Country    string `gorm:"not null" json:"country" binding:"required,min=2,max=2"`
+	StudioName string `gorm:"unique;not null" json:"studio_name"`
+	Country    string `gorm:"not null" json:"country"`
 }
 
 type Family struct {
