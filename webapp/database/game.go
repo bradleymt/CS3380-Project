@@ -41,44 +41,26 @@ type Refund struct {
 	Approved   bool
 }
 
-type Library struct {
-	gorm.Model
-	UserID uint
-	User   User `gorm:"foreignKey:UserID"`
-}
-
 type LibraryItem struct {
 	gorm.Model
-	LibraryID uint
-	Library   Library `gorm:"foreignKey:LibraryID"`
-	GameID    uint
-	Game      Game `gorm:"foreignKey:GameID"`
-}
-
-type Wishlist struct {
-	gorm.Model
 	UserID uint
 	User   User `gorm:"foreignKey:UserID"`
+	GameID uint
+	Game   Game `gorm:"foreignKey:GameID"`
 }
 
 type WishlistItem struct {
 	gorm.Model
-	WishlistID uint
-	Wishlist   Wishlist `gorm:"foreignKey:WishlistID"`
-	GameID     uint
-	Game       Game `gorm:"foreignKey:GameID"`
-}
-
-type Cart struct {
-	gorm.Model
 	UserID uint
 	User   User `gorm:"foreignKey:UserID"`
+	GameID uint
+	Game   Game `gorm:"foreignKey:GameID"`
 }
 
 type CartItem struct {
 	gorm.Model
-	CartID uint
-	Cart   Cart `gorm:"foreignKey:CartID"`
+	UserID uint
+	User   User `gorm:"foreignKey:UserID"`
 	GameID uint
 	Game   Game `gorm:"foreignKey:GameID"`
 }
