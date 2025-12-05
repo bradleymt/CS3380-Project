@@ -1,3 +1,9 @@
 webapp/tmp/
 webapp/gomodcache/
 pgdata/
+.env
+*.ps1
+frontend/test-api.html
+.DS_Store
+Thumbs.db
+*.log

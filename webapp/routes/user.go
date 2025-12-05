@@ -230,3 +230,116 @@ func GetFamily(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"family_members": familyEntries})
 }
+
+// POST /api/secure/add-user-to-family
+func AddUserToFamily(c *gin.Context) {
+	var requestBody struct {
+		Username string `json:"username" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&requestBody); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("failed to bind request body: %v", err)})
+		return
+	}
+
+	// Get current user (the one adding someone)
+	var currentUser database.User
+	if userID, ok := c.Get("user_id"); !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to find associated user"})
+		return
+	} else {
+		if err := database.DB.First(&currentUser, "id = ?", userID.(uint64)).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to find associated user"})
+			return
+		}
+	}
+
+	// Check if current user is in a family
+	if currentUser.FamilyID == nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "you must be in a family to add others"})
+		return
+	}
+
+	// Find the user to add by username
+	var userToAdd database.User
+	if err := database.DB.Where("username = ?", requestBody.Username).First(&userToAdd).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
+		return
+	}
+
+	// Check if user is already in a family
+	if userToAdd.FamilyID != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "user is already in a family"})
+		return
+	}
+
+	// Add user to the current user's family
+	userToAdd.FamilyID = currentUser.FamilyID
+	if err := database.DB.Save(&userToAdd).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to add user to family"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"result": fmt.Sprintf("User %s has been added to your family", requestBody.Username)})
+}
+
+// GET /api/secure/get-family-games
+func GetFamilyGames(c *gin.Context) {
+	var user database.User
+	if userID, ok := c.Get("user_id"); !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to find associated user"})
+		return
+	} else {
+		if err := database.DB.First(&user, "id = ?", userID.(uint64)).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to find associated user"})
+			return
+		}
+	}
+
+	if user.FamilyID == nil {
+		c.JSON(http.StatusOK, gin.H{"games": []interface{}{}})
+		return
+	}
+
+	// Get all users in the family
+	var familyUsers []database.User
+	if err := database.DB.Where("family_id = ?", *user.FamilyID).Find(&familyUsers).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to query family members"})
+		return
+	}
+
+	// Get all user IDs
+	var userIDs []uint
+	for _, u := range familyUsers {
+		userIDs = append(userIDs, u.ID)
+	}
+
+	// Get all purchases for these users with distinct games
+	type PurchaseResult struct {
+		GameID uint `gorm:"column:game_id"`
+	}
+	var purchaseResults []PurchaseResult
+	if err := database.DB.Table("purchases").
+		Select("DISTINCT game_id").
+		Where("user_id IN ?", userIDs).
+		Find(&purchaseResults).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to query family purchases"})
+		return
+	}
+
+	// Get game details
+	var gameIDs []uint
+	for _, p := range purchaseResults {
+		gameIDs = append(gameIDs, p.GameID)
+	}
+
+	var games []database.Game
+	if len(gameIDs) > 0 {
+		if err := database.DB.Where("id IN ?", gameIDs).Find(&games).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to query games"})
+			return
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{"games": games})
+}

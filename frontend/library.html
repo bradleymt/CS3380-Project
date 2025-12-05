@@ -17,9 +17,7 @@
                 <li><a href="profile.html">Profile</a></li>
                 <li><a href="cart.html">Cart</a></li>
             </ul>
-            <div class="user-section">
-                <div class="wallet">Money Here</div>
-                <div class="user-avatar">Picture Here</div>
+            <div class="user-section" id="user-section">
             </div>
         </nav>
     </header>
@@ -28,87 +26,21 @@
         <div class="library-header">
             <h1 class="section-title">My Game Library</h1>
             <div class="filter-buttons">
-                <button class="filter-btn active">All Games</button>
-                <button class="filter-btn">Recently Played</button>
-                <button class="filter-btn">Installed</button>
+                <button class="filter-btn active" data-filter="all">All Games</button>
+                <button class="filter-btn" data-filter="action">Action</button>
+                <button class="filter-btn" data-filter="rpg">RPG</button>
+                <button class="filter-btn" data-filter="strategy">Strategy</button>
             </div>
         </div>
 
         <div class="library-grid">
-            <div class="library-item">
-                <div class="library-image">Image here</div>
-                <div class="library-details">
-                    <h3 class="library-title">Game 1</h3>
-                    <div class="library-actions">
-                    </div>
-                </div>
-            </div>
+        </div>
 
-            <div class="library-item">
-                <div class="library-image">Insert Image</div>
-                <div class="library-details">
-                    <h3 class="library-title">Game 2</h3>
-                    <div class="library-actions">
-                    </div>
-                </div>
-            </div>
+        <div class="library-header library-header-secondary">
+            <h2 class="section-title">Family Games</h2>
+        </div>
 
-            <div class="library-item">
-                <div class="library-image">Insert Image</div>
-                <div class="library-details">
-                    <h3 class="library-title">Game 3</h3>
-                    <div class="library-actions">
-                    </div>
-                </div>
-            </div>
-
-            <div class="library-item">
-                <div class="library-image">Insert Image</div>
-                <div class="library-details">
-                    <h3 class="library-title">Game 4</h3>
-                    <div class="library-actions">
-                    </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="library-item">
-                <div class="library-image">Insert Image</div>
-                <div class="library-details">
-                    <h3 class="library-title">Game 5</h3>
-                    <div class="library-actions">
-                    </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="library-item">
-                <div class="library-image">Insert Image</div>
-                <div class="library-details">
-                    <h3 class="library-title">Game 6</h3>
-                    <div class="library-actions">
-                    </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="library-item">
-                <div class="library-image">Insert Image</div>
-                <div class="library-details">
-                    <h3 class="library-title">Game 7</h3>
-                    <div class="library-actions">
-                    </div>
-                </div>
-            </div>
-
-            <div class="library-item">
-                <div class="library-image">Insert Image</div>
-                <div class="library-details">
-                    <h3 class="library-title">Game 8</h3>
-                    <div class="library-actions">
-                    </div>
-                </div>
-            </div>
+        <div class="library-grid" id="familyGamesGrid">
         </div>
     </div>
 

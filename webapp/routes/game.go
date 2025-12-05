@@ -150,3 +150,32 @@ func FindGames(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"games": games})
 }
+
+// GET /api/secure/library
+func GetLibrary(c *gin.Context) {
+	var user database.User
+	if userID, ok := c.Get("user_id"); !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to find associated user"})
+		return
+	} else {
+		if err := database.DB.First(&user, "id = ?", userID.(uint64)).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to find associated user"})
+			return
+		}
+	}
+
+	// Get all purchases for this user with game info
+	var purchases []database.Purchase
+	if err := database.DB.Preload("Game").Where("user_id = ?", user.ID).Find(&purchases).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to query purchases"})
+		return
+	}
+
+	// Extract games from purchases
+	var games []database.Game
+	for _, purchase := range purchases {
+		games = append(games, purchase.Game)
+	}
+
+	c.JSON(http.StatusOK, gin.H{"games": games})
+}

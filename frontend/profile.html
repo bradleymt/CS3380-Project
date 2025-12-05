@@ -17,41 +17,46 @@
                 <li><a href="profile.html" class="active">Profile</a></li>
                 <li><a href="cart.html">Cart</a></li>
             </ul>
-            <div class="user-section">
-                <div class="wallet">Money Here</div>
-                <div class="user-avatar">Picture Here</div>
+            <div class="user-section" id="user-section">
             </div>
         </nav>
     </header>
 
     <div class="container">
         <div class="profile-header">
-            <div class="profile-avatar">Picture Here</div>
+            <div class="profile-avatar">
+                <span id="avatarInitial" class="avatar-initial">U</span>
+            </div>
             <div class="profile-info">
-                <h1>GameUser</h1>
-                <span class="profile-level">Insert Level</span>
+                <h1 id="profileUsername">Loading...</h1>
                 <div class="profile-stats">
                     <div class="stat">
-                        <span class="stat-value">Num Games</span>
+                        <span class="stat-value" id="gamesOwned">0</span>
                         <span class="stat-label">Games Owned</span>
                     </div>
                     <div class="stat">
-
-                    </div>
-                    <div class="stat">
-                        <span class="stat-value">Num Achievements</span>
-                        <span class="stat-label">Achievements</span>
-                    </div>
-                    <div class="stat">
-                        <span class="stat-value">Num Friends</span>
-                        <span class="stat-label">Friends</span>
+                        <span class="stat-value" id="familySize">0</span>
+                        <span class="stat-label">Family Members</span>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="profile-content">
-
+            <section class="profile-section">
+                <h2 class="section-title">Family Members</h2>
+                <div id="familyList" class="friends-grid">
+                    <p class="family-empty">Not in a family yet</p>
+                </div>
+                <div class="family-actions" id="familyActions">
+                    <button class="btn" id="createFamilyBtn">Create Family</button>
+                    <div id="addFamilySection">
+                        <input type="text" id="usernameToAdd" placeholder="Username to add">
+                        <button class="btn" id="addToFamilyBtn">Add to Family</button>
+                        <button class="btn" id="leaveFamilyBtn">Leave Family</button>
+                    </div>
+                </div>
+            </section>
         </div>
     </div>
 

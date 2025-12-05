@@ -36,6 +36,18 @@ func AddToCart(c *gin.Context) {
 			return fmt.Errorf("failed to find game")
 		}
 
+		// Check if user already owns this game
+		var existingPurchase database.Purchase
+		if err := tx.Where("user_id = ? AND game_id = ?", user.ID, requestBody.GameID).First(&existingPurchase).Error; err == nil {
+			return fmt.Errorf("you already own this game")
+		}
+
+		// Check if already in cart
+		var existingCartItem database.CartItem
+		if err := tx.Where("user_id = ? AND game_id = ?", user.ID, requestBody.GameID).First(&existingCartItem).Error; err == nil {
+			return fmt.Errorf("game already in cart")
+		}
+
 		var cartItem database.CartItem
 		cartItem.GameID = requestBody.GameID
 		cartItem.UserID = user.ID
@@ -43,6 +55,7 @@ func AddToCart(c *gin.Context) {
 		return tx.Create(&cartItem).Error
 	}); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Failed to add item to cart: %v", err)})
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"result": "Added item to cart!"})
@@ -161,6 +174,13 @@ func PurchaseItems(c *gin.Context) {
 		}
 
 		for _, item := range cartItems {
+			// Check if user already owns this game
+			var existingPurchase database.Purchase
+			if err := tx.Where("user_id = ? AND game_id = ?", user.ID, item.GameID).First(&existingPurchase).Error; err == nil {
+				// User already owns this game, skip it
+				continue
+			}
+
 			purchase := database.Purchase{
 				UserID:        user.ID,
 				GameID:        item.GameID,
