@@ -59,6 +59,7 @@ func main() {
 			secureGroup.POST("/remove-game", routes.RemoveGame)
 			secureGroup.GET("/find-games", routes.FindGames)
 			secureGroup.GET("/library", routes.GetLibrary)
+			secureGroup.GET("/game-discounts/:gameId", routes.GetGameDiscounts)
 		}
 	}
 

@@ -148,7 +148,24 @@ func FindGames(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"games": games})
+	// Fetch discounts for each game
+	type GameWithDiscount struct {
+		database.Game
+		Discounts []database.Discount `json:"discounts"`
+	}
+
+	var gamesWithDiscounts []GameWithDiscount
+	for _, game := range games {
+		var discounts []database.Discount
+		database.DB.Where("game_id = ?", game.ID).Find(&discounts)
+		
+		gamesWithDiscounts = append(gamesWithDiscounts, GameWithDiscount{
+			Game:      game,
+			Discounts: discounts,
+		})
+	}
+
+	c.JSON(http.StatusOK, gin.H{"games": gamesWithDiscounts})
 }
 
 // GET /api/secure/library
@@ -164,18 +181,79 @@ func GetLibrary(c *gin.Context) {
 		}
 	}
 
-	// Get all purchases for this user with game info
-	var purchases []database.Purchase
-	if err := database.DB.Preload("Game").Where("user_id = ?", user.ID).Find(&purchases).Error; err != nil {
+	// Get user IDs to query (user + family members)
+	var userIDs []uint
+	userIDs = append(userIDs, user.ID)
+
+	// If user is in a family, get all family member IDs
+	if user.FamilyID != nil {
+		var familyUsers []database.User
+		if err := database.DB.Where("family_id = ?", *user.FamilyID).Find(&familyUsers).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to query family members"})
+			return
+		}
+		for _, u := range familyUsers {
+			if u.ID != user.ID {
+				userIDs = append(userIDs, u.ID)
+			}
+		}
+	}
+
+	// Get all purchases for user and family members with distinct games
+	type PurchaseResult struct {
+		GameID uint `gorm:"column:game_id"`
+	}
+	var purchaseResults []PurchaseResult
+	if err := database.DB.Table("purchases").
+		Select("DISTINCT game_id").
+		Where("user_id IN ?", userIDs).
+		Find(&purchaseResults).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to query purchases"})
 		return
 	}
 
-	// Extract games from purchases
+	// Get game details
+	var gameIDs []uint
+	for _, p := range purchaseResults {
+		gameIDs = append(gameIDs, p.GameID)
+	}
+
 	var games []database.Game
-	for _, purchase := range purchases {
-		games = append(games, purchase.Game)
+	if len(gameIDs) > 0 {
+		if err := database.DB.Where("id IN ?", gameIDs).Find(&games).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to query games"})
+			return
+		}
 	}
 
 	c.JSON(http.StatusOK, gin.H{"games": games})
+}
+
+// GET /api/secure/game-discounts/:gameId
+func GetGameDiscounts(c *gin.Context) {
+	gameIDStr := c.Param("gameId")
+	var gameID uint
+	if _, err := fmt.Sscanf(gameIDStr, "%d", &gameID); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid game ID"})
+		return
+	}
+
+	// Check if game exists
+	var game database.Game
+	if err := database.DB.First(&game, gameID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "game not found"})
+		return
+	}
+
+	// Get all discounts for this game
+	var discounts []database.Discount
+	if err := database.DB.Where("game_id = ?", gameID).Find(&discounts).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to query discounts"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"game":      game,
+		"discounts": discounts,
+	})
 }
