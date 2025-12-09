@@ -1,4 +1,4 @@
 #!/bin/bash
 curl -X POST -i http://localhost:8081/api/secure/leave-publisher \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NjQwMTczNDksInVzZXJfaWQiOjF9.lmEjtTdn8HhgkJ7VrO6pWI1NoX_I-qQ4jnuWCWxgT6A"
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NjQ5NjY5NTAsInVzZXJfaWQiOjF9.q0qGcUTon6HcOCesXSLRKd96GrgRnJzlTYfqna2dHNs"

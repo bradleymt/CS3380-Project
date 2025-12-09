@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WaterVapor - Refunds</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="landingpage.html" class="logo">WaterVapor</a>
+            <ul class="nav-links">
+                <li><a href="landingpage.html">Home</a></li>
+                <li><a href="store.html">Store</a></li>
+                <li><a href="library.html">Library</a></li>
+                <li><a href="wishlist.html">Wishlist</a></li>
+                <li><a href="publisher.html">Publisher</a></li>
+                <li><a href="refunds.html" class="active">Refunds</a></li>
+                <li><a href="profile.html">Profile</a></li>
+                <li><a href="cart.html">Cart</a></li>
+            </ul>
+            <div class="user-section" id="user-section">
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        <h1 class="page-title">Purchase History & Refunds</h1>
+        
+        <div class="profile-section">
+            <h2 class="section-title">Your Purchases</h2>
+            <div id="purchaseHistory" class="purchase-list">
+                <p class="empty-state">Loading purchases...</p>
+            </div>
+        </div>
+
+        <div class="profile-section">
+            <h2 class="section-title">Your Refund Requests</h2>
+            <div id="refundRequests" class="refund-list">
+                <p class="empty-state">No refund requests</p>
+            </div>
+        </div>
+
+        <div class="profile-section" id="adminRefundSection" style="display: none;">
+            <h2 class="section-title"> Admin: Pending Refund Approvals</h2>
+            <div id="pendingRefunds" class="refund-list">
+                <p class="empty-state">No pending refunds</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="refundModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h2>Request Refund</h2>
+            <p class="modal-subtitle">Game: <span id="refundGameName"></span></p>
+            
+            <div class="form-group">
+                <label for="refundReason">Reason for refund</label>
+                <textarea id="refundReason" rows="4" placeholder="Please explain why you'd like a refund..."></textarea>
+            </div>
+            
+            <div class="modal-actions">
+                <button class="btn" id="submitRefundBtn">Submit Request</button>
+                <button class="btn btn-secondary" id="cancelRefundBtn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

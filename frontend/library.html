@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WaterVapor - Library</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="landingpage.html" class="logo">WaterVapor</a>
+            <ul class="nav-links">
+                <li><a href="landingpage.html">Home</a></li>
+                <li><a href="store.html">Store</a></li>
+                <li><a href="library.html" class="active">Library</a></li>
+                <li><a href="wishlist.html">Wishlist</a></li>
+                <li><a href="publisher.html">Publisher</a></li>
+                <li><a href="refunds.html">Refunds</a></li>
+                <li><a href="profile.html">Profile</a></li>
+                <li><a href="cart.html">Cart</a></li>
+            </ul>
+            <div class="user-section" id="user-section">
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="library-header">
+            <h1 class="section-title">My Game Library</h1>
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-filter="all">All Games</button>
+                <button class="filter-btn" data-filter="action">Action</button>
+                <button class="filter-btn" data-filter="rpg">RPG</button>
+                <button class="filter-btn" data-filter="strategy">Strategy</button>
+            </div>
+        </div>
+
+        <div class="library-grid">
+        </div>
+
+        <div class="library-header library-header-secondary">
+            <h2 class="section-title">Family Games</h2>
+        </div>
+
+        <div class="library-grid" id="familyGamesGrid">
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

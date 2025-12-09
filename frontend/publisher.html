@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WaterVapor - Publisher Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="landingpage.html" class="logo">WaterVapor</a>
+            <ul class="nav-links">
+                <li><a href="landingpage.html">Home</a></li>
+                <li><a href="store.html">Store</a></li>
+                <li><a href="library.html">Library</a></li>
+                <li><a href="wishlist.html">Wishlist</a></li>
+                <li><a href="publisher.html" class="active">Publisher</a></li>
+                <li><a href="refunds.html">Refunds</a></li>
+                <li><a href="profile.html">Profile</a></li>
+                <li><a href="cart.html">Cart</a></li>
+            </ul>
+            <div class="user-section" id="user-section">
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        <h1 class="page-title">Publisher Dashboard</h1>
+        
+        <div id="notInPublisherSection" class="profile-section">
+            <h2 class="section-title">Join or Create a Publisher</h2>
+            <p>Publishers can create and manage games on WaterVapor.</p>
+            
+            <div class="publisher-actions">
+                <div class="form-group">
+                    <label for="publisherStudioName">Studio Name</label>
+                    <input type="text" id="publisherStudioName" placeholder="Enter studio name (8-32 characters)" minlength="8" maxlength="32">
+                </div>
+                
+                <div class="form-group">
+                    <label for="publisherCountry">Country</label>
+                    <input type="text" id="publisherCountry" placeholder="Enter country">
+                </div>
+                
+                <div class="button-group">
+                    <button class="btn" id="createPublisherBtn">Create Publisher</button>
+                    <button class="btn btn-secondary" id="joinPublisherBtn">Join Existing</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="inPublisherSection" class="profile-section" style="display: none;">
+            <div class="publisher-header">
+                <h2 class="section-title">Your Publisher: <span id="publisherName">Loading...</span></h2>
+                <button class="btn btn-danger" id="leavePublisherBtn">Leave Publisher</button>
+            </div>
+
+            <div class="profile-section">
+                <h3 class="section-title">Create New Game</h3>
+                <div class="game-form">
+                    <div class="form-group">
+                        <label for="gameName">Game Name</label>
+                        <input type="text" id="gameName" placeholder="Enter game name" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="gamePrice">Price</label>
+                            <input type="number" id="gamePrice" placeholder="0.00" step="0.01" min="0" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="gameCurrency">Currency</label>
+                            <select id="gameCurrency">
+                                <option value="USD">USD</option>
+                                <option value="EUR">EUR</option>
+                                <option value="GBP">ZWD</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="gameGenre">Genre</label>
+                        <select id="gameGenre">
+                            <option value="Action">Action</option>
+                            <option value="Adventure">Adventure</option>
+                            <option value="RPG">RPG</option>
+                            <option value="Strategy">Strategy</option>
+                            <option value="Simulation">Simulation</option>
+                            <option value="Sports">Sports</option>
+                            <option value="Puzzle">Puzzle</option>
+                            <option value="Indie">Indie</option>
+                        </select>
+                    </div>
+                    
+                    <button class="btn" id="createGameBtn">Create Game</button>
+                </div>
+            </div>
+
+            <div class="profile-section">
+                <h3 class="section-title">Your Games</h3>
+                <div id="publisherGames" class="games-grid">
+                    <p class="empty-state">No games published yet</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

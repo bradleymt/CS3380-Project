@@ -1,5 +1,5 @@
 #!/bin/bash
-curl -X GET -i http://localhost:8081/api/login \
+curl -X POST -i http://localhost:8081/api/login \
   -H "Content-Type: application/json" \
   -d '{
     "username": "testuser",

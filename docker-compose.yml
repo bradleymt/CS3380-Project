@@ -7,14 +7,26 @@ networks:
     driver: bridge
 
 services:
+  nginx:
+    build:
+      context: .
+      dockerfile: nginx/Dockerfile
+    ports:
+      - "8081:80"
+    depends_on:
+      - webapp
+    volumes:
+      - ./frontend:/usr/share/nginx/html
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+
   webapp:
     build:
       dockerfile: webapp.dockerfile
       args:
         - GOLANG_VERSION=${GOLANG_VERSION}
     env_file: .env
-    ports:
-      - 8081:8080
+    expose:
+      - "8080"
     volumes:
       - ./webapp:/opt/webapp
       - ./webapp/gomodcache:/go/pkg/mod
