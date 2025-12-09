@@ -213,7 +213,21 @@ func GetFamily(c *gin.Context) {
 	}
 
 	if user.FamilyID == nil {
-		c.JSON(http.StatusOK, gin.H{"result": "user is not in a family"})
+		response := gin.H{
+			"result":       "user is not in a family",
+			"publisher_id": user.PublisherID,
+			"is_admin":     user.IsAdmin,
+		}
+
+		if user.PublisherID != nil {
+			var publisher database.Publisher
+			if err := database.DB.First(&publisher, "id = ?", *user.PublisherID).Error; err == nil {
+				response["publisher_name"] = publisher.StudioName
+				response["publisher_country"] = publisher.Country
+			}
+		}
+
+		c.JSON(http.StatusOK, response)
 		return
 	}
 
@@ -228,7 +242,21 @@ func GetFamily(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"family_members": familyEntries})
+	response := gin.H{
+		"family_members": familyEntries,
+		"publisher_id":   user.PublisherID,
+		"is_admin":       user.IsAdmin,
+	}
+
+	if user.PublisherID != nil {
+		var publisher database.Publisher
+		if err := database.DB.First(&publisher, "id = ?", *user.PublisherID).Error; err == nil {
+			response["publisher_name"] = publisher.StudioName
+			response["publisher_country"] = publisher.Country
+		}
+	}
+
+	c.JSON(http.StatusOK, response)
 }
 
 // POST /api/secure/add-user-to-family
@@ -301,41 +329,66 @@ func GetFamilyGames(c *gin.Context) {
 		return
 	}
 
-	// Get all users in the family
+	// Get games owned by the current user
+	type PurchaseResult struct {
+		GameID uint `gorm:"column:game_id"`
+	}
+	var userPurchases []PurchaseResult
+	if err := database.DB.Table("purchases").
+		Select("DISTINCT game_id").
+		Where("user_id = ?", user.ID).
+		Find(&userPurchases).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to query user purchases"})
+		return
+	}
+
+	// Create a set of game IDs the user already owns
+	userGameIDs := make(map[uint]bool)
+	for _, p := range userPurchases {
+		userGameIDs[p.GameID] = true
+	}
+
+	// Get all other users in the family (excluding current user)
 	var familyUsers []database.User
-	if err := database.DB.Where("family_id = ?", *user.FamilyID).Find(&familyUsers).Error; err != nil {
+	if err := database.DB.Where("family_id = ? AND id != ?", *user.FamilyID, user.ID).Find(&familyUsers).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to query family members"})
 		return
 	}
 
-	// Get all user IDs
-	var userIDs []uint
+	// Get family member IDs
+	var familyUserIDs []uint
 	for _, u := range familyUsers {
-		userIDs = append(userIDs, u.ID)
+		familyUserIDs = append(familyUserIDs, u.ID)
 	}
 
-	// Get all purchases for these users with distinct games
-	type PurchaseResult struct {
-		GameID uint `gorm:"column:game_id"`
+	// If no other family members, return empty
+	if len(familyUserIDs) == 0 {
+		c.JSON(http.StatusOK, gin.H{"games": []interface{}{}})
+		return
 	}
-	var purchaseResults []PurchaseResult
+
+	// Get all purchases for other family members with distinct games
+	var familyPurchases []PurchaseResult
 	if err := database.DB.Table("purchases").
 		Select("DISTINCT game_id").
-		Where("user_id IN ?", userIDs).
-		Find(&purchaseResults).Error; err != nil {
+		Where("user_id IN ?", familyUserIDs).
+		Find(&familyPurchases).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to query family purchases"})
 		return
 	}
 
-	// Get game details
-	var gameIDs []uint
-	for _, p := range purchaseResults {
-		gameIDs = append(gameIDs, p.GameID)
+	// Filter out games the current user already owns
+	var sharedGameIDs []uint
+	for _, p := range familyPurchases {
+		if !userGameIDs[p.GameID] {
+			sharedGameIDs = append(sharedGameIDs, p.GameID)
+		}
 	}
 
+	// Get game details
 	var games []database.Game
-	if len(gameIDs) > 0 {
-		if err := database.DB.Where("id IN ?", gameIDs).Find(&games).Error; err != nil {
+	if len(sharedGameIDs) > 0 {
+		if err := database.DB.Where("id IN ?", sharedGameIDs).Find(&games).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to query games"})
 			return
 		}

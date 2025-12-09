@@ -56,6 +56,8 @@ func CreateGame(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("failed to create game: %v", err.Error())})
 		return
 	}
+
+	c.JSON(http.StatusOK, gin.H{"result": "game created successfully"})
 }
 
 // POST /api/secure/remove-game
@@ -158,7 +160,7 @@ func FindGames(c *gin.Context) {
 	for _, game := range games {
 		var discounts []database.Discount
 		database.DB.Where("game_id = ?", game.ID).Find(&discounts)
-		
+
 		gamesWithDiscounts = append(gamesWithDiscounts, GameWithDiscount{
 			Game:      game,
 			Discounts: discounts,
@@ -181,32 +183,14 @@ func GetLibrary(c *gin.Context) {
 		}
 	}
 
-	// Get user IDs to query (user + family members)
-	var userIDs []uint
-	userIDs = append(userIDs, user.ID)
-
-	// If user is in a family, get all family member IDs
-	if user.FamilyID != nil {
-		var familyUsers []database.User
-		if err := database.DB.Where("family_id = ?", *user.FamilyID).Find(&familyUsers).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to query family members"})
-			return
-		}
-		for _, u := range familyUsers {
-			if u.ID != user.ID {
-				userIDs = append(userIDs, u.ID)
-			}
-		}
-	}
-
-	// Get all purchases for user and family members with distinct games
+	// Get all purchases for the current user only
 	type PurchaseResult struct {
 		GameID uint `gorm:"column:game_id"`
 	}
 	var purchaseResults []PurchaseResult
 	if err := database.DB.Table("purchases").
 		Select("DISTINCT game_id").
-		Where("user_id IN ?", userIDs).
+		Where("user_id = ?", user.ID).
 		Find(&purchaseResults).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to query purchases"})
 		return

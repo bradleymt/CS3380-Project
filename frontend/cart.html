@@ -14,6 +14,9 @@
                 <li><a href="landingpage.html">Home</a></li>
                 <li><a href="store.html">Store</a></li>
                 <li><a href="library.html">Library</a></li>
+                <li><a href="wishlist.html">Wishlist</a></li>
+                <li><a href="publisher.html">Publisher</a></li>
+                <li><a href="refunds.html">Refunds</a></li>
                 <li><a href="profile.html">Profile</a></li>
                 <li><a href="cart.html" class="active">Cart</a></li>
             </ul>
@@ -78,13 +81,8 @@
                     <span class="summary-value">Price Here</span>
                 </div>
                 
-                <div class="summary-row">
-                    <span>Tax</span>
-                    <span class="summary-value">Price Here</span>
-                </div>
-                
                 <div class="summary-row discount">
-                    <span>Discount (10%)</span>
+                    <span>Discount</span>
                     <span class="summary-value">Price Here</span>
                 </div>
                 
@@ -95,17 +93,45 @@
                     <span class="summary-value">Price Here</span>
                 </div>
 
-                <button class="btn purchase-btn">Purchase Now</button>
-                <a href="store.html" class="continue-shopping">Continue Shopping</a>
-
-                <div class="payment-methods">
-                    <h3>Payment Methods</h3>
-                    <div class="payment-icons">
-                        <div class="payment-icon">Image Here</div>
-                        <div class="payment-icon">Image Here</div>
-                        <div class="payment-icon">Image Here</div>
+                <div class="payment-form" id="paymentForm" style="display: none;">
+                    <h3 style="margin: 20px 0 15px; color: #66c0f4;">Payment Information</h3>
+                    
+                    <div class="form-group">
+                        <h3>Credit/Debit Card</h3>
+                    </div>
+                    <br>
+                    <div class="form-group">
+                        <label for="street">Street Address</label>
+                        <input type="text" id="street" placeholder="123 Main St" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="city">City</label>
+                            <input type="text" id="city" placeholder="City" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="state">State</label>
+                            <input type="text" id="state" placeholder="ST" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="zipCode">Zip Code</label>
+                            <input type="text" id="zipCode" placeholder="12345" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="country">Country</label>
+                            <input type="text" id="country" placeholder="USA" required>
+                        </div>
                     </div>
                 </div>
+
+                <button class="btn purchase-btn" id="purchaseBtn">Purchase Now</button>
+                <a href="store.html" class="continue-shopping">Continue Shopping</a>
             </div>
         </div>
 

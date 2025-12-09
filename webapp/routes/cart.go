@@ -4,6 +4,7 @@ import (
 	"cs3380/database"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -255,7 +256,7 @@ func RequestRefund(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"result": "refund requested", "refund_id": refund.ID})
 }
 
-// POST /api/secure/approve-refund
+// POST /api/secure/approve-refund (ADMIN ONLY)
 func ApproveRefund(c *gin.Context) {
 	var requestBody struct {
 		RefundID uint `json:"refund_id" binding:"required"`
@@ -263,6 +264,22 @@ func ApproveRefund(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&requestBody); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid body supplied"})
+		return
+	}
+
+	var user database.User
+	if userID, ok := c.Get("user_id"); !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to find associated user"})
+		return
+	} else {
+		if err := database.DB.First(&user, "id = ?", userID.(uint64)).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to find associated user"})
+			return
+		}
+	}
+
+	if !user.IsAdmin {
+		c.JSON(http.StatusForbidden, gin.H{"error": "admin access required"})
 		return
 	}
 
@@ -281,13 +298,18 @@ func ApproveRefund(c *gin.Context) {
 			return err
 		}
 
-		// remove purchase
-		if err := tx.Delete(&database.Purchase{}, refund.PurchaseID).Error; err != nil {
+		// remove library entry if present (hard delete)
+		if err := tx.Unscoped().Where("user_id = ? AND game_id = ?", refund.Purchase.UserID, refund.Purchase.GameID).Delete(&database.LibraryItem{}).Error; err != nil {
 			return err
 		}
 
-		// remove library entry if present
-		if err := tx.Where("user_id = ? AND game_id = ?", refund.Purchase.UserID, refund.Purchase.GameID).Delete(&database.LibraryItem{}).Error; err != nil {
+		// delete the refund record first (foreign key constraint)
+		if err := tx.Unscoped().Delete(&database.Refund{}, requestBody.RefundID).Error; err != nil {
+			return err
+		}
+
+		// remove purchase (hard delete)
+		if err := tx.Unscoped().Delete(&database.Purchase{}, refund.PurchaseID).Error; err != nil {
 			return err
 		}
 
@@ -298,6 +320,100 @@ func ApproveRefund(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"result": "refund approved"})
+}
+
+// GET /api/secure/get-purchases
+func GetPurchases(c *gin.Context) {
+	var user database.User
+	if userID, ok := c.Get("user_id"); !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to find associated user"})
+		return
+	} else {
+		if err := database.DB.First(&user, "id = ?", userID.(uint64)).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to find associated user"})
+			return
+		}
+	}
+
+	var purchases []database.Purchase
+	if err := database.DB.Preload("Game").Where("user_id = ?", user.ID).Find(&purchases).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get purchases"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"purchases": purchases})
+}
+
+// GET /api/secure/get-my-refunds
+func GetMyRefunds(c *gin.Context) {
+	var user database.User
+	if userID, ok := c.Get("user_id"); !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to find associated user"})
+		return
+	} else {
+		if err := database.DB.First(&user, "id = ?", userID.(uint64)).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to find associated user"})
+			return
+		}
+	}
+
+	type RefundWithGame struct {
+		database.Refund
+		GameName string `json:"game_name"`
+	}
+
+	var refunds []RefundWithGame
+	if err := database.DB.Table("refunds").
+		Select("refunds.*, games.name as game_name").
+		Joins("JOIN purchases ON purchases.id = refunds.purchase_id").
+		Joins("JOIN games ON games.id = purchases.game_id").
+		Where("purchases.user_id = ? AND refunds.deleted_at IS NULL", user.ID).
+		Scan(&refunds).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get refunds"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"refunds": refunds})
+}
+
+// GET /api/secure/get-pending-refunds (ADMIN ONLY)
+func GetPendingRefunds(c *gin.Context) {
+	var user database.User
+	if userID, ok := c.Get("user_id"); !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to find associated user"})
+		return
+	} else {
+		if err := database.DB.First(&user, "id = ?", userID.(uint64)).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to find associated user"})
+			return
+		}
+	}
+
+	if !user.IsAdmin {
+		c.JSON(http.StatusForbidden, gin.H{"error": "admin access required"})
+		return
+	}
+
+	type PendingRefund struct {
+		database.Refund
+		GameName     string    `json:"game_name"`
+		Username     string    `json:"username"`
+		PurchaseDate time.Time `json:"purchase_date"`
+	}
+
+	var pendingRefunds []PendingRefund
+	if err := database.DB.Table("refunds").
+		Select("refunds.*, games.name as game_name, users.username, purchases.created_at as purchase_date").
+		Joins("JOIN purchases ON purchases.id = refunds.purchase_id").
+		Joins("JOIN games ON games.id = purchases.game_id").
+		Joins("JOIN users ON users.id = purchases.user_id").
+		Where("refunds.approved = ? AND refunds.deleted_at IS NULL", false).
+		Scan(&pendingRefunds).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get pending refunds"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"pending_refunds": pendingRefunds})
 }
 
 // POST /api/secure/add-to-wishlist
@@ -364,4 +480,37 @@ func RemoveFromWishlist(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"result": "Removed item from wishlist"})
+}
+
+// GET /api/secure/get-wishlist
+func GetWishlist(c *gin.Context) {
+	var user database.User
+	if userID, ok := c.Get("user_id"); !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to find associated user"})
+		return
+	} else {
+		if err := database.DB.First(&user, "id = ?", userID.(uint64)).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to find associated user"})
+			return
+		}
+	}
+
+	var result []database.Game
+	if err := database.DB.Transaction(func(tx *gorm.DB) error {
+		var wishlistItems []database.WishlistItem
+		if err := tx.Preload("Game").Find(&wishlistItems, "user_id = ?", user.ID).Error; err != nil {
+			return err
+		}
+
+		for _, item := range wishlistItems {
+			result = append(result, item.Game)
+		}
+
+		return nil
+	}); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Failed to find wishlist items: %v", err)})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"wishlist_items": result})
 }

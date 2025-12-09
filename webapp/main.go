@@ -47,9 +47,13 @@ func main() {
 			secureGroup.POST("/purchase", routes.PurchaseItems)
 			secureGroup.POST("/request-refund", routes.RequestRefund)
 			secureGroup.POST("/approve-refund", routes.ApproveRefund)
+			secureGroup.GET("/get-purchases", routes.GetPurchases)
+			secureGroup.GET("/get-my-refunds", routes.GetMyRefunds)
+			secureGroup.GET("/get-pending-refunds", routes.GetPendingRefunds)
 
 			secureGroup.POST("/add-to-wishlist", routes.AddToWishlist)
 			secureGroup.POST("/remove-from-wishlist", routes.RemoveFromWishlist)
+			secureGroup.GET("/get-wishlist", routes.GetWishlist)
 
 			secureGroup.POST("/create-publisher", routes.CreatePublisher)
 			secureGroup.POST("/join-publisher", routes.JoinPublisher)
