@@ -4,7 +4,7 @@ A very original full stack game distribution platform built with Go, PostgreSQL,
 
 ## Project Overview
 
-WaterVapor is a very new, never before seen concept: A digital game purchasing platform featuring user accounts, game purchases, family sharing, publisher management, wishlists, shopping cart, and refund systems.
+WaterVapor is a very new, never before seen concept: a digital game purchasing platform featuring user accounts, game purchases, family sharing, publisher management, wishlists, a shopping cart, and refund systems.
 
 ## Services
 
