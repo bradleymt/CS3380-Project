@@ -191,9 +191,9 @@ CS3380-Project/
 │   ├── middleware/      # JWT authentication
 │   └── main.go          # Application entry point
 ├── frontend/            # HTML, CSS, JavaScript
-├── nginx/              # Reverse proxy configuration
-├── docker-compose.yml  # Service orchestration
-└── .env               # Environment variables
+├── nginx/               # Reverse proxy configuration
+├── docker-compose.yml   # Service orchestration
+└── .env                 # Environment variables
 ```
 
 ## Database Tables
